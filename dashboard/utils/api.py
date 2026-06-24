@@ -14,7 +14,8 @@ import os
 
 API_BASE_URL = os.getenv(
     "API_BASE_URL",
-    "https://manufacturingiq.onrender.com"
+    #"https://manufacturingiq.onrender.com"
+    "http://127.0.0.1:8000"
 )
 
 TIMEOUT = 15
@@ -39,7 +40,8 @@ def predict_health(
 ) -> Dict[str, Any]:
     """
     Send prediction request to the backend API.
-    Returns simulated data if API is unavailable.
+    Returns ONLY from the backend. Never falls back to simulation.
+    Raises an exception if the API call fails.
     """
     payload = {
         "Type": machine_type,
@@ -50,18 +52,30 @@ def predict_health(
         "Tool_wear_min": tool_wear
     }
 
-    try:
-        response = requests.post(
-            f"{API_BASE_URL}/predict",
-            json=payload,
-            timeout=TIMEOUT
-        )
-        if response.status_code == 200:
-            return response.json()
-    except:
-        pass
+    # DEBUG: Log the payload being sent
+    print(f"[DEBUG] predict_health payload: {json.dumps(payload)}")
 
-    return _simulate_prediction(payload)
+    response = requests.post(
+        f"{API_BASE_URL}/predict",
+        json=payload,
+        timeout=TIMEOUT
+    )
+
+    # DEBUG: Log response status
+    print(f"[DEBUG] Response status: {response.status_code}")
+
+    if response.status_code != 200:
+        error_detail = response.text if response.text else "No response body"
+        print(f"[DEBUG] Response error body: {error_detail}")
+        raise RuntimeError(
+            f"API returned status {response.status_code}: {error_detail}"
+        )
+
+    result = response.json()
+    # DEBUG: Log the result returned by the API
+    print(f"[DEBUG] API result: {json.dumps(result)}")
+
+    return result
 
 
 def _simulate_prediction(payload: Dict[str, Any]) -> Dict[str, Any]:

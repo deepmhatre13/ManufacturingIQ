@@ -145,18 +145,30 @@ def render():
     with col_right:
         if "prediction_result" not in st.session_state:
             st.session_state.prediction_result = None
+        if "prediction_error" not in st.session_state:
+            st.session_state.prediction_error = None
 
         if analyze_clicked:
             with st.spinner("Analyzing machine health..."):
-                result = predict_health(
-                    machine_type=machine_type,
-                    air_temp=air_temp,
-                    process_temp=process_temp,
-                    rpm=rpm,
-                    torque=torque,
-                    tool_wear=tool_wear
-                )
-                st.session_state.prediction_result = result
+                try:
+                    result = predict_health(
+                        machine_type=machine_type,
+                        air_temp=air_temp,
+                        process_temp=process_temp,
+                        rpm=rpm,
+                        torque=torque,
+                        tool_wear=tool_wear
+                    )
+                    st.session_state.prediction_result = result
+                    st.session_state.prediction_error = None
+                except Exception as e:
+                    error_msg = str(e)
+                    print(f"[DEBUG] Prediction failed: {error_msg}")
+                    st.session_state.prediction_error = error_msg
+                    st.session_state.prediction_result = None
+
+        if st.session_state.get("prediction_error"):
+            st.error(f"API Error: {st.session_state.prediction_error}")
 
         if st.session_state.prediction_result:
             result = st.session_state.prediction_result
