@@ -14,8 +14,8 @@ import os
 
 API_BASE_URL = os.getenv(
     "API_BASE_URL",
-    #"https://manufacturingiq.onrender.com"
-    "http://127.0.0.1:8000"
+    "https://manufacturingiq.onrender.com"
+    #"http://127.0.0.1:8000"
 )
 
 TIMEOUT = 15
