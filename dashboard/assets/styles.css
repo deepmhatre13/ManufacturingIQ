@@ -1,0 +1,833 @@
+/* =============================================
+   ManufacturingIQ - Premium SaaS Styles
+   Clean, product-oriented design system
+   ============================================= */
+
+/* === IMPORTS === */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* === CSS VARIABLES === */
+:root {
+  --bg: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --primary: #0F766E;
+  --primary-light: #14B8A6;
+  --primary-dark: #115E59;
+  --accent: #0EA5E9;
+  --text: #0F172A;
+  --text-secondary: #475569;
+  --muted: #64748B;
+  --border: #E2E8F0;
+  --border-light: #F1F5F9;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.06), 0 20px 30px rgba(0, 0, 0, 0.04);
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* === GLOBAL RESET === */
+.stApp {
+  background: var(--bg);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Hide Streamlit branding */
+#MainMenu {visibility: hidden;}
+.stDeployButton {display: none;}
+footer {display: none !important;}
+header {display: none !important;}
+
+/* Remove default padding */
+.block-container {
+  padding-top: 0.5rem !important;
+  padding-bottom: 2rem !important;
+  max-width: 100% !important;
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+}
+
+/* === NAVIGATION === */
+.stTabs [data-baseweb="tab-list"] {
+  gap: 0;
+  background: var(--bg-card);
+  padding: 4px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 1rem !important;
+}
+
+.stTabs [data-baseweb="tab"] {
+  height: auto;
+  padding: 10px 24px;
+  border-radius: var(--radius-sm);
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  transition: var(--transition);
+  border: none;
+  background: transparent;
+  letter-spacing: -0.01em;
+}
+
+.stTabs [aria-selected="true"] {
+  background: var(--primary) !important;
+  color: white !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.stTabs [aria-selected="false"]:hover {
+  color: var(--text);
+  background: var(--border-light);
+}
+
+/* === KPI CARDS === */
+div[data-testid="stVerticalBlock"] > div.element-container:has(.kpi-card),
+div[data-testid="stVerticalBlock"] > div:has(> .kpi-card) {
+  padding: 0 !important;
+}
+
+.kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--primary-light));
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.kpi-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-light);
+  transform: translateY(-1px);
+}
+
+.kpi-card:hover::before {
+  opacity: 1;
+}
+
+.kpi-card .kpi-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.kpi-card .kpi-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.kpi-card .kpi-subtitle,
+.kpi-card .kpi-delta {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+/* === STATUS BADGES === */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.status-badge.healthy {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-badge.warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: #D97706;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.status-badge.critical {
+  background: rgba(239, 68, 68, 0.1);
+  color: #DC2626;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.status-badge.info {
+  background: rgba(14, 165, 233, 0.1);
+  color: #0284C7;
+  border: 1px solid rgba(14, 165, 233, 0.2);
+}
+
+.status-badge.success {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-badge.healthy .dot { background: #10B981; }
+.status-badge.warning .dot { background: #F59E0B; }
+.status-badge.critical .dot { background: #EF4444; }
+.status-badge.info .dot { background: #0EA5E9; }
+.status-badge.success .dot { background: #10B981; }
+
+/* === COMPACT HERO SECTION === */
+.pi-hero {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.pi-hero-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pi-hero-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.pi-hero-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.pi-hero-subtitle {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.pi-hero-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  justify-content: flex-end;
+}
+
+/* === SECTION HEADERS === */
+.section-header {
+  margin-bottom: 1rem;
+}
+
+.section-header h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.2rem;
+}
+
+.section-header p {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* === GAUGE SECTION (prevents clipping) === */
+.gauge-section {
+  margin-top: 1rem;
+  overflow: visible !important;
+}
+
+.gauge-section .js-plotly-plot {
+  overflow: visible !important;
+}
+
+/* Gauge wrapper inside result card */
+.gauge-wrapper {
+  margin-top: 0.75rem;
+  overflow: visible !important;
+}
+
+.gauge-wrapper .js-plotly-plot {
+  overflow: visible !important;
+}
+
+/* === INPUT CARD === */
+.pi-input-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  transition: var(--transition);
+}
+
+.pi-input-card:hover {
+  box-shadow: var(--shadow);
+  border-color: var(--primary-light);
+}
+
+.pi-input-header {
+  margin-bottom: 1.25rem;
+}
+
+.pi-input-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+/* Override Streamlit input styles */
+.stSelectbox label,
+.stNumberInput label {
+  font-size: 0.7rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  color: var(--muted) !important;
+}
+
+.stSelectbox div[data-baseweb="select"] > div {
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  background: var(--bg-card) !important;
+  transition: var(--transition) !important;
+}
+
+.stSelectbox div[data-baseweb="select"] > div:hover {
+  border-color: var(--primary-light) !important;
+}
+
+.stSelectbox div[data-baseweb="select"] > div:focus-within {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1) !important;
+}
+
+.stNumberInput input {
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  background: var(--bg-card) !important;
+  transition: var(--transition) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.85rem !important;
+}
+
+.stNumberInput input:hover {
+  border-color: var(--primary-light) !important;
+}
+
+.stNumberInput input:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1) !important;
+}
+
+/* === PRIMARY BUTTON === */
+.stButton button {
+  background: var(--primary) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 0.625rem 1.5rem !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  transition: var(--transition) !important;
+  width: 100% !important;
+  letter-spacing: -0.01em !important;
+  box-shadow: 0 1px 2px rgba(15, 118, 110, 0.2) !important;
+}
+
+.stButton button:hover {
+  background: var(--primary-dark) !important;
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3) !important;
+  transform: translateY(-1px);
+}
+
+.stButton button:active {
+  transform: translateY(0);
+}
+
+/* === RESULT CARD === */
+.pi-result-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  min-height: 200px;
+  transition: var(--transition);
+}
+
+.pi-result-card:has(.pi-result-status) {
+  border-color: var(--primary-light);
+  box-shadow: var(--shadow-md);
+}
+
+.pi-result-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.pi-result-assessment {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.pi-result-status-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  padding: 0.2rem 0.5rem;
+  background: var(--border-light);
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.pi-result-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.625rem;
+  margin-bottom: 1rem;
+}
+
+.pi-result-metric {
+  background: var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 0.625rem 0.75rem;
+}
+
+.pi-result-metric-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.pi-result-metric-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.pi-result-drivers {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(15, 118, 110, 0.04);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(15, 118, 110, 0.08);
+}
+
+.pi-result-drivers-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.pi-result-drivers-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.pi-result-driver-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.625rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.pi-result-action {
+  padding: 0.75rem;
+  background: rgba(245, 158, 11, 0.06);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(245, 158, 11, 0.12);
+}
+
+.pi-result-action-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-bottom: 0.375rem;
+}
+
+.pi-result-action-text {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.pi-result-empty {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  color: var(--muted);
+}
+
+.pi-result-empty-icon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+  opacity: 0.5;
+}
+
+.pi-result-empty p {
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* === TOP DRIVERS BAR (Model Intelligence) === */
+.pi-top-drivers-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.pi-top-drivers-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.pi-driver-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  background: rgba(15, 118, 110, 0.08);
+  border: 1px solid rgba(15, 118, 110, 0.15);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--primary);
+}
+
+/* === PLOTLY CHARTS (no global card styling) === */
+.js-plotly-plot {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.js-plotly-plot .main-svg {
+  background: transparent !important;
+}
+
+/* Explicit chart container for card styling when needed */
+.chart-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  transition: var(--transition);
+}
+
+.chart-container:hover {
+  box-shadow: var(--shadow);
+  border-color: var(--primary-light);
+}
+
+/* === OPS MONITORING CARDS (MLOps page) === */
+.ops-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+}
+
+.ops-card.warning {
+  border-color: var(--warning);
+}
+
+.ops-card.healthy {
+  border-color: var(--success);
+}
+
+.ops-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.625rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.ops-card-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.ops-badge {
+  display: inline-block;
+  padding: 0.15rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border: 1px solid;
+}
+
+.ops-card-body {
+  padding-top: 0.25rem;
+}
+
+.ops-metric-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.ops-metric {
+  text-align: center;
+}
+
+.ops-metric-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.ops-metric-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-top: 0.15rem;
+}
+
+/* === METRIC CONTAINERS === */
+div[data-testid="metric-container"] {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  padding: 1rem 1.25rem !important;
+  transition: var(--transition) !important;
+}
+
+div[data-testid="metric-container"]:hover {
+  box-shadow: var(--shadow) !important;
+  border-color: var(--primary-light) !important;
+}
+
+div[data-testid="metric-container"] > label {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: var(--muted) !important;
+}
+
+div[data-testid="metric-container"] > div {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: var(--text) !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* === DIVIDERS & ALERTS === */
+.stDivider {
+  border-color: var(--border) !important;
+  margin: 2rem 0 !important;
+}
+
+.stSpinner > div {
+  border-color: var(--primary) !important;
+}
+
+.stAlert {
+  border-radius: var(--radius-sm) !important;
+  border: none !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.stAlert[data-baseweb="notification"] {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.stAlert.info {
+  background: rgba(14, 165, 233, 0.05) !important;
+  border: 1px solid rgba(14, 165, 233, 0.2) !important;
+}
+
+.stAlert.success {
+  background: rgba(16, 185, 129, 0.05) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+}
+
+.stAlert.warning {
+  background: rgba(245, 158, 11, 0.05) !important;
+  border: 1px solid rgba(245, 158, 11, 0.2) !important;
+}
+
+.stAlert.error {
+  background: rgba(239, 68, 68, 0.05) !important;
+  border: 1px solid rgba(239, 68, 68, 0.2) !important;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .block-container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  .pi-hero-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .pi-hero-badges {
+    justify-content: flex-start;
+  }
+  
+  .kpi-card .kpi-value {
+    font-size: 1.25rem;
+  }
+  
+  .ops-metric-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+/* === EXPANDER (de-emphasized for MLflow) === */
+.streamlit-expanderHeader {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+  color: var(--muted) !important;
+  background: var(--bg-card) !important;
+  border-radius: var(--radius) !important;
+  border: 1px solid var(--border) !important;
+  padding: 0.5rem 1rem !important;
+  transition: var(--transition) !important;
+}
+
+.streamlit-expanderHeader:hover {
+  border-color: var(--primary-light) !important;
+  color: var(--text) !important;
+}
+
+.streamlit-expanderContent {
+  border: 1px solid var(--border) !important;
+  border-top: none !important;
+  border-radius: 0 0 var(--radius) var(--radius) !important;
+  background: var(--bg-card) !important;
+  padding: 0.75rem !important;
+}
+
+/* === DATA TABLES (compact) === */
+.stDataFrame {
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  overflow: hidden !important;
+}
+
+.stDataFrame [data-testid="StyledDataFrameDataTable"] {
+  font-family: 'Inter', sans-serif !important;
+}
+
+.stDataFrame thead tr th {
+  background: var(--border-light) !important;
+  font-weight: 600 !important;
+  font-size: 0.7rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: var(--muted) !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 0.5rem 0.75rem !important;
+}
+
+.stDataFrame tbody tr td {
+  font-size: 0.8rem !important;
+  color: var(--text) !important;
+  border-bottom: 1px solid var(--border-light) !important;
+  padding: 0.4rem 0.75rem !important;
+}
+
+.stDataFrame tbody tr:hover {
+  background: rgba(15, 118, 110, 0.02) !important;
+}

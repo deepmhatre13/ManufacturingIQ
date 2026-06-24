@@ -1,0 +1,52 @@
+# Core Data Science
+numpy==2.2.6
+pandas==2.3.0
+scipy==1.16.0
+
+# Machine Learning
+scikit-learn==1.7.0
+xgboost==3.0.2
+joblib==1.5.1
+
+# Hyperparameter Optimization
+optuna==4.4.0
+
+# Explainable AI
+shap==0.48.0
+
+# API
+fastapi==0.115.14
+uvicorn[standard]==0.35.0
+python-multipart==0.0.20
+pydantic==2.11.7
+
+# MLOps
+mlflow==3.1.0
+
+# Monitoring
+evidently==0.7.10
+
+# Data Versioning
+dvc==3.60.1
+
+# Visualization
+matplotlib==3.10.3
+seaborn==0.13.2
+plotly==5.24.1
+
+# Notebook
+jupyter==1.1.1
+ipykernel==6.29.5
+
+# Utilities
+python-dotenv==1.1.1
+tqdm==4.67.1
+
+# Model Serialization
+cloudpickle==3.1.1
+
+# Requests
+requests==2.32.4
+
+# JSON/YAML
+PyYAML==6.0.2
