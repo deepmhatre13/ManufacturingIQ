@@ -1,34 +1,62 @@
+# Python
 venv/
 __pycache__/
-.ipynb_checkpoints/
-
-.vscode/
-
-mlruns/
-mlflow.db
-
-reports/
-artifacts/
-
 *.pyc
 *.pyo
-*.log
+*.egg-info/
+dist/
+build/
 
-.DS_Store
+# Jupyter
+.ipynb_checkpoints/
+# Uncomment below to strip notebook outputs from git
+# notebook.ipynb
 
-# Environment and secrets
-.env
-.env.local
-.streamlit/secrets.toml
-.env.example
 # IDE
+.vscode/
 .idea/
 *.swp
 *.swo
 
 # OS
+.DS_Store
 Thumbs.db
 Desktop.ini
-.streamlit/secrets.toml.example
 
-.models
+# Environment and secrets (actual config files, NOT the examples)
+.env
+.env.local
+.streamlit/secrets.toml
+
+# MLflow
+mlruns/
+mlflow.db
+
+# DVC (data is versioned via DVC, not git)
+data/raw/*.csv
+data/processed/
+data/production/*.csv
+data/prediction_history.csv
+data/agent_prediction_history.csv
+
+# Models (binaries tracked via DVC, not git)
+models/*.joblib
+models/*.pkl
+models/embeddings/
+
+# Keep model metadata JSON tracked in git
+!models/model_metadata.json
+
+# Reports and artifacts
+reports/
+artifacts/
+
+# Test and lint caches
+.pytest_cache/
+.ruff_cache/
+
+# Dashboard backups
+dashboard/backup/
+
+# Logs
+*.log

@@ -1,41 +1,113 @@
 # ManufacturingIQ
 
-AI-Powered Predictive Maintenance Platform with XGBoost, FastAPI, and Streamlit.
+[![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688.svg)](https://fastapi.tiangolo.com)
+[![XGBoost](https://img.shields.io/badge/XGBoost-3.0-EC1C24.svg)](https://xgboost.readthedocs.io/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.40-FF4B4B.svg)](https://streamlit.io)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+**AI-Powered Predictive Maintenance Platform** — Predict machine failures in real-time using XGBoost, with a full MLOps lifecycle managed via FastAPI and Streamlit.
+
+> Built on the [AI4I 2020 Predictive Maintenance Dataset](https://archive.ics.uci.edu/dataset/601/ai4i+2020+predictive+maintenance+dataset).
+
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [Architecture](#architecture)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Environment Configuration](#environment-configuration)
+  - [Google OAuth Setup](#google-oauth-setup-for-dashboard)
+- [Running the Application](#running-the-application)
+  - [FastAPI Backend](#1-start-fastapi-backend)
+  - [Streamlit Dashboard](#2-start-streamlit-dashboard)
+  - [Docker](#docker)
+- [Training the Model](#training-the-model)
+- [MLOps & Monitoring](#mlops--monitoring)
+  - [Drift Monitoring](#drift-monitoring)
+  - [Automated Retraining](#automated-retraining)
+- [Agentic AI System](#agentic-ai-system)
+- [API Reference](#api-reference)
+- [Project Structure](#project-structure)
+- [Testing](#testing)
+- [Security](#security)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
 
 ## Features
 
-- **Predictive Intelligence**: Real-time machine failure prediction with health scoring
-- **MLOps Center**: Model monitoring, drift detection, and automated retraining
-- **Centralized Feature Engineering**: Single source of truth for all feature calculations
-- **Structured Logging**: Production-ready logging with JSON/diagnostics support
-- **API Authentication**: Secure API key-based access control with constant-time comparison
-- **Dashboard Authentication**: Google OAuth login for Streamlit dashboard with optional email allowlists
+### 🔮 Predictive Intelligence
+- Real-time machine failure prediction with health scoring
+- 6 engineered features for robust predictions (temperature delta, torque-speed ratio, wear intensity, etc.)
+- XGBoost classifier optimized via Optuna hyperparameter tuning
+
+### 🏭 MLOps Center
+- **Drift Detection**: Monitor feature drift and model performance degradation using Evidently AI
+- **Automated Retraining**: Scheduled retraining pipeline with candidate model evaluation
+- **Model Registry**: Versioned model storage with promotion gates
+- **Performance Metrics**: Track accuracy, precision, recall, F1 over time
+
+### 🔐 Enterprise Security
+- **Two-layer authentication**: Google OAuth for dashboard users + API key auth for service-to-service
+- **Constant-time API key comparison** to prevent timing attacks
+- **Optional email/domain allowlists** for dashboard access control
+
+### 🤖 Agentic AI System
+- Multi-agent architecture using LangGraph for intelligent decision support
+- Agents for prediction, explanation, risk assessment, trend analysis, and report generation
+- RAG-powered knowledge retrieval from maintenance corpus
+- PDF report generation with automated insights
+
+### 📊 Centralized Feature Engineering
+- Single source of truth for all feature calculations
+- Epsilon-guarded divisions for production safety
+- Training/serving parity — same code used in notebook, API, and monitoring
+
+### 📝 Structured Logging
+- Development mode: human-readable colored console output
+- Production mode: JSON-lines format for log aggregation (ELK, Datadog, etc.)
+
+---
 
 ## Architecture
 
 ```
-notebook.ipynb              # Training notebook with EDA and model optimization
-feature_engineering/         # Centralized feature engineering module
-app/                         # FastAPI backend
-  main.py                    # API endpoints with auth
-  predictor.py               # Model inference
-  schemas.py                 # Pydantic models
-  auth.py                    # API key authentication
-dashboard/                   # Streamlit frontend
-  app.py                     # Main dashboard with OAuth
-  utils/api.py               # Backend client
-monitoring/                  # Drift detection and metrics
-retraining/                  # Automated model retraining
-scheduler/                   # Retraining scheduler
+┌─────────────────────────────────────────────────────────────┐
+│                    Streamlit Dashboard                       │
+│  (Google OAuth · Predictive Intelligence · MLOps Center)    │
+└──────────────────────────┬──────────────────────────────────┘
+                           │ X-API-Key
+┌──────────────────────────▼──────────────────────────────────┐
+│                     FastAPI Backend                          │
+│  (/predict · /health · centralized feature engineering)     │
+└──────┬───────────────┬───────────────┬──────────────────────┘
+       │               │               │
+┌──────▼──────┐ ┌──────▼──────┐ ┌──────▼──────────────────┐
+│  XGBoost    │ │  Drift      │ │  Agentic AI (LangGraph)  │
+│  Model      │ │  Monitor    │ │  · Prediction Agent      │
+│             │ │  (Evidently)│ │  · Explanation Agent     │
+│             │ │             │ │  · Risk Agent            │
+│             │ │             │ │  · Trend Agent           │
+│             │ │             │ │  · Maintenance Agent     │
+│             │ │             │ │  · Report Agent          │
+└─────────────┘ └─────────────┘ └──────────────────────────┘
 ```
+
+---
 
 ## Getting Started
 
 ### Prerequisites
 
 - Python 3.12+
-- Virtual environment (venv)
-- Dependencies listed in requirements.txt
+- Virtual environment (recommended)
+- Dependencies listed in [requirements.txt](requirements.txt)
 
 ### Installation
 
@@ -62,30 +134,26 @@ pip install -r requirements.txt
 Copy `.env.example` to `.env` and configure:
 
 ```bash
-# Required for API authentication
-MANUFACTURINGIQ_API_KEYS=changeme-dev-key
-
-# Dashboard API key (for backend authentication from dashboard)
-MANUFACTURINGIQ_API_KEY=changeme-dev-key
-
-# API base URL (default: local FastAPI server)
-API_BASE_URL=http://127.0.0.1:8000
-
-# Environment mode: development or production
-ENV=development
-
-# Log level: DEBUG, INFO, WARNING, ERROR
-LOG_LEVEL=INFO
+cp .env.example .env
 ```
+
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `MANUFACTURINGIQ_API_KEYS` | Comma-separated valid API keys for backend auth | Yes (backend) | — |
+| `MANUFACTURINGIQ_API_KEY` | API key for dashboard-to-backend communication | Yes (dashboard) | — |
+| `API_BASE_URL` | Backend API URL | No | `http://127.0.0.1:8000` |
+| `ENV` | Environment mode: `development` or `production` | No | `development` |
+| `LOG_LEVEL` | Logging level: `DEBUG`, `INFO`, `WARNING`, `ERROR` | No | `INFO` |
+| `GEMINI_API_KEY` | Google Gemini API key (for AI agent features) | No | — |
 
 ### Google OAuth Setup for Dashboard
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new OAuth 2.0 Client ID
+2. Create a new OAuth 2.0 Client ID (Web application type)
 3. Add authorized redirect URIs:
    - Local: `http://localhost:8501/oauth2callback`
    - Production: `https://your-app-url.streamlit.app/oauth2callback`
-4. Download client credentials and add to `.streamlit/secrets.toml`:
+4. Copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml` and fill in your credentials:
 
 ```toml
 [auth]
@@ -100,9 +168,11 @@ server_metadata_url = "https://accounts.google.com/.well-known/openid-configurat
 # ALLOWED_EMAIL_DOMAINS = "yourcompany.com"
 ```
 
-### Running the Application
+---
 
-#### 1. Start FastAPI Backend
+## Running the Application
+
+### 1. Start FastAPI Backend
 
 ```bash
 # Set API key
@@ -112,27 +182,7 @@ export MANUFACTURINGIQ_API_KEYS="your-secure-api-key-here"
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-**API Endpoints:**
-- `GET /` - Health check (unauthenticated)
-- `GET /health` - Detailed health status (unauthenticated)
-- `POST /predict` - Get machine failure prediction (requires X-API-Key header)
-
-**Example API Request:**
-```bash
-curl -X POST http://localhost:8000/predict \
-  -H "X-API-Key: your-secure-api-key-here" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "Type": "M",
-    "Air_temperature_K": 298.1,
-    "Process_temperature_K": 308.6,
-    "Rotational_speed_rpm": 1551,
-    "Torque_Nm": 42.8,
-    "Tool_wear_min": 12
-  }'
-```
-
-#### 2. Start Streamlit Dashboard
+### 2. Start Streamlit Dashboard
 
 ```bash
 # Set environment variables
@@ -143,9 +193,23 @@ export API_BASE_URL="http://localhost:8000"
 streamlit run dashboard/app.py
 ```
 
-The dashboard will open at `http://localhost:8501`. You must log in with Google to access the dashboard.
+The dashboard opens at `http://localhost:8501`. You must log in with Google to access it.
 
-### Training the Model
+### Docker
+
+```bash
+# Build the image
+docker build -t manufacturingiq .
+
+# Run the container
+docker run -p 8000:8000 \
+  -e MANUFACTURINGIQ_API_KEYS="your-secure-api-key-here" \
+  manufacturingiq
+```
+
+---
+
+## Training the Model
 
 Open and run the notebook cells in order:
 
@@ -161,45 +225,194 @@ The notebook will:
 5. Save production model and metadata
 6. Generate drift reports and monitoring dashboards
 
-### Running Drift Monitoring
+---
+
+## MLOps & Monitoring
+
+### Drift Monitoring
 
 ```bash
 python monitoring/drift_monitor.py
 ```
 
+Uses [Evidently AI](https://www.evidentlyai.com/) to detect:
+- **Data drift**: Feature distribution shifts using statistical tests
+- **Model drift**: Performance degradation over time
+
 ### Automated Retraining
 
 ```bash
+# Run the retraining scheduler
 python scheduler/auto_retrain.py
 ```
 
-## Environment Variables
+The retraining pipeline:
+1. Trains a candidate model on recent data
+2. Evaluates against the current production model
+3. Promotes the candidate if it outperforms the current model
+4. Logs all metrics to MLflow
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `MANUFACTURINGIQ_API_KEYS` | Comma-separated valid API keys for backend auth | Yes (backend) | - |
-| `MANUFACTURINGIQ_API_KEY` | API key for dashboard-to-backend communication | Yes (dashboard) | - |
-| `API_BASE_URL` | Backend API URL | No | `http://127.0.0.1:8000` |
-| `ENV` | Environment mode: `development` or `production` | No | `development` |
-| `LOG_LEVEL` | Logging level: `DEBUG`, `INFO`, `WARNING`, `ERROR` | No | `INFO` |
+---
 
-## Logging
+## Agentic AI System
 
-Logging is configured via `logging_config.py`:
+The platform includes a multi-agent AI system built with [LangGraph](https://langchain-ai.github.io/langgraph/):
 
-- **Development mode** (`ENV=development`): Human-readable colored console output with timestamps
-- **Production mode** (`ENV=production`): JSON-lines format for log aggregation
+| Agent | Responsibility |
+|-------|---------------|
+| **Supervisor Agent** | Orchestrates the multi-agent workflow |
+| **Prediction Agent** | Generates failure predictions with confidence scores |
+| **Explanation Agent** | Provides SHAP-based model explanations |
+| **Risk Agent** | Assesses operational risk levels |
+| **Trend Agent** | Analyzes historical performance trends |
+| **Maintenance Agent** | Recommends maintenance actions |
+| **Retrieval Agent** | RAG-based knowledge retrieval from maintenance corpus |
+| **Report Agent** | Generates comprehensive PDF reports |
+| **Decision Validator Agent** | Validates and cross-checks agent outputs |
 
-Each log line includes:
-- Timestamp (UTC, ISO 8601)
-- Log level
-- Module/logger name
-- Service name (`api`, `dashboard`, `monitoring`, `retraining`, `scheduler`)
-- Message and optional exception tracebacks via `logger.exception()`
+---
+
+## API Reference
+
+### `GET /`
+Health check (unauthenticated).
+
+### `GET /health`
+Detailed health status (unauthenticated).
+
+### `POST /predict`
+Get machine failure prediction (requires `X-API-Key` header).
+
+**Request body:**
+```json
+{
+  "Type": "M",
+  "Air_temperature_K": 298.1,
+  "Process_temperature_K": 308.6,
+  "Rotational_speed_rpm": 1551,
+  "Torque_Nm": 42.8,
+  "Tool_wear_min": 12
+}
+```
+
+**Example:**
+```bash
+curl -X POST http://localhost:8000/predict \
+  -H "X-API-Key: your-secure-api-key-here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "Type": "M",
+    "Air_temperature_K": 298.1,
+    "Process_temperature_K": 308.6,
+    "Rotational_speed_rpm": 1551,
+    "Torque_Nm": 42.8,
+    "Tool_wear_min": 12
+  }'
+```
+
+---
+
+## Project Structure
+
+```
+ManufacturingIQ/
+├── app/                          # FastAPI backend
+│   ├── main.py                   # API endpoints with auth
+│   ├── predictor.py              # Model inference
+│   ├── schemas.py                # Pydantic models
+│   ├── auth.py                   # API key authentication
+│   ├── agentic.py                # Agentic AI API endpoints
+│   └── scoring.py                # Scoring utilities
+├── agents/                       # LangGraph agentic AI system
+│   ├── supervisor_agent.py       # Workflow orchestrator
+│   ├── prediction_agent.py       # Failure prediction agent
+│   ├── explanation_agent.py      # SHAP explanation agent
+│   ├── risk_agent.py             # Risk assessment agent
+│   ├── trend_agent.py            # Trend analysis agent
+│   ├── maintenance_agent.py      # Maintenance recommendation agent
+│   ├── retrieval_agent.py        # RAG knowledge retrieval agent
+│   ├── report_agent.py           # PDF report generation agent
+│   ├── decision_validator_agent.py  # Output validation agent
+│   └── _utils.py                 # Shared agent utilities
+├── dashboard/                    # Streamlit frontend
+│   ├── app.py                    # Main dashboard with OAuth
+│   ├── pages/                    # Dashboard pages
+│   │   ├── predictive_intelligence.py
+│   │   └── mlops_center.py
+│   ├── components/               # Reusable UI components
+│   │   ├── cards.py
+│   │   ├── charts.py
+│   │   ├── gauges.py
+│   │   └── tables.py
+│   ├── utils/                    # Dashboard utilities
+│   │   ├── api.py                # Backend client
+│   │   └── agentic_api.py        # Agentic AI client
+│   └── assets/                   # Static assets (CSS, images)
+├── data/                         # Data (versioned via DVC)
+│   ├── raw/                      # Raw dataset (DVC-tracked)
+│   ├── processed/                # Processed data
+│   └── production/               # Production data
+├── feature_engineering/          # Centralized feature engineering
+│   ├── __init__.py
+│   └── engineer.py               # Single source of truth for features
+├── graph/                        # LangGraph workflow graph
+│   └── graph.py                  # Agent orchestration graph
+├── history/                      # Prediction history management
+│   ├── __init__.py
+│   └── utils.py
+├── knowledge/                    # RAG knowledge base
+│   └── corpus.py                 # Maintenance knowledge corpus
+├── models/                       # Trained models (DVC-tracked)
+│   ├── production_model.pkl
+│   ├── feature_columns.pkl
+│   ├── model_metadata.json
+│   └── embeddings/               # Vector embeddings for RAG
+├── monitoring/                   # Drift detection & metrics
+│   ├── __init__.py
+│   ├── drift_monitor.py          # Evidently-based drift detection
+│   └── metrics_logger.py         # Performance metrics logging
+├── reports/                      # Generated PDF reports
+│   └── generator.py              # Report generation engine
+├── retraining/                   # Automated model retraining
+│   ├── __init__.py
+│   ├── retrain.py                # Retraining orchestration
+│   ├── train_candidate.py        # Candidate model training
+│   ├── model_evaluator.py        # Model comparison & evaluation
+│   └── promote_model.py          # Model promotion logic
+├── retriever/                    # RAG document retriever
+│   └── retriever.py              # Vector search retrieval
+├── scheduler/                    # Scheduled tasks
+│   ├── __init__.py
+│   └── auto_retrain.py           # Scheduled retraining
+├── state/                        # LangGraph state management
+│   └── schema.py                 # State schemas
+├── tests/                        # Test suite
+│   ├── test_auth.py
+│   ├── test_feature_engineering.py
+│   ├── test_drift_monitor.py
+│   ├── test_dashboard_auth_config.py
+│   ├── test_critical_fixes.py
+│   ├── test_high_priority_fixes.py
+│   └── test_h3_h7.py
+├── .streamlit/
+│   ├── secrets.toml.example      # Streamlit secrets template
+│   └── config.toml               # Streamlit server config
+├── logging_config.py             # Structured logging configuration
+├── notebook.ipynb                # Training notebook with EDA
+├── requirements.txt              # Python dependencies
+├── Dockerfile                    # Docker image definition
+├── .env.example                  # Environment variables template
+├── .gitignore
+├── .dvcignore
+├── LICENSE                       # MIT License
+├── CONTRIBUTING.md               # Contribution guidelines
+├── SECURITY.md                   # Security policy
+└── README.md
+```
+
+---
 
 ## Testing
-
-Run the test suite:
 
 ```bash
 # Run all tests
@@ -212,85 +425,35 @@ pytest tests/test_drift_monitor.py -v
 pytest tests/test_dashboard_auth_config.py -v
 ```
 
-## Feature Engineering
+---
 
-The `feature_engineering/engineer.py` module is the single source of truth for all 6 engineered features:
-
-1. **temperature_difference**: Process temperature - Air temperature (thermal delta)
-2. **torque_speed_ratio**: Torque / Rotational speed (mechanical load at given speed)
-3. **wear_intensity**: Tool wear × Torque (cumulative mechanical stress)
-4. **machine_stress_index**: Composite normalized index (thermal + mechanical + wear factors)
-5. **thermal_risk_index**: Process temperature / Air temperature (thermal loading ratio)
-6. **wear_efficiency_index**: Rotational speed / (Tool wear + 1) (operational efficiency)
-
-All divisions are epsilon-guarded (`+ 1e-6`) for production safety. This module is imported by both the notebook and the API, ensuring training/serving parity.
-
-## Security Notes
+## Security
 
 - **API Keys**: Loaded from `MANUFACTURINGIQ_API_KEYS` env var, compared using `secrets.compare_digest()` to prevent timing attacks
 - **Never hardcode keys** in source code or commit them to version control
 - **Google OAuth**: Dashboard access requires Google sign-in, with optional email/domain allowlists
 - **Two auth layers**: Dashboard login (OAuth) authenticates the human user; X-API-Key authenticates the dashboard service to the backend
+- **Dependency scanning**: Keep dependencies updated via `pip-audit` or Dependabot
 
-## Project Structure
+For reporting security vulnerabilities, see [SECURITY.md](SECURITY.md).
 
-```
-ManufacturingIQ/
-├── app/
-│   ├── __init__.py
-│   ├── main.py              # FastAPI app with auth
-│   ├── predictor.py         # Model inference with centralized features
-│   ├── schemas.py           # Pydantic request/response models
-│   └── auth.py              # API key authentication
-├── dashboard/
-│   ├── app.py               # Streamlit dashboard with Google OAuth
-│   ├── __init__.py
-│   ├── pages/
-│   ├── components/
-│   ├── utils/
-│   │   └── api.py           # Backend client with X-API-Key header
-│   └── assets/
-├── feature_engineering/
-│   ├── __init__.py
-│   └── engineer.py          # Single source of truth for features
-├── monitoring/
-│   ├── __init__.py
-│   ├── drift_monitor.py
-│   └── metrics_logger.py
-├── retraining/
-│   ├── __init__.py
-│   ├── retrain.py
-│   ├── train_candidate.py
-│   ├── model_evaluator.py
-│   └── promote_model.py
-├── scheduler/
-│   ├── __init__.py
-│   └── auto_retrain.py
-├── tests/
-│   ├── test_feature_engineering.py
-│   ├── test_auth.py
-│   ├── test_drift_monitor.py
-│   └── test_dashboard_auth_config.py
-├── models/
-│   ├── production_model.pkl
-│   ├── feature_columns.pkl
-│   └── model_metadata.json
-├── logging_config.py        # Structured logging configuration
-├── notebook.ipynb
-├── requirements.txt
-├── Dockerfile
-├── .env.example
-├── .streamlit/secrets.toml.example
-├── .gitignore
-└── README.md
-```
+---
 
-## Known Issues & Future Work
+## Contributing
 
-- **Per-user rate limiting**: Currently uses shared static API keys. Future: migrate to JWT-based auth with proper identity provider.
-- **Model retraining triggers**: Currently manual/scheduled. Future: add drift-based automated triggers.
-- **Model explainability**: SHAP values computed in notebook only. Future: serve SHAP explanations via API endpoint.
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+---
 
 ## License
 
-Confidential - Internal Use Only
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Acknowledgments
+
+- [AI4I 2020 Predictive Maintenance Dataset](https://archive.ics.uci.edu/dataset/601/ai4i+2020+predictive+maintenance+dataset) from UCI Machine Learning Repository
+- [Evidently AI](https://www.evidentlyai.com/) for drift monitoring
+- [LangGraph](https://langchain-ai.github.io/langgraph/) for agent orchestration
+- [Streamlit](https://streamlit.io/) for the dashboard framework
