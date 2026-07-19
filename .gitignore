@@ -30,3 +30,5 @@ artifacts/
 Thumbs.db
 Desktop.ini
 .streamlit/secrets.toml.example
+
+.models
