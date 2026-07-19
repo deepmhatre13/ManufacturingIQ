@@ -4,6 +4,8 @@ INPUTS → PREDICTION → ACTIONABLE INSIGHTS
 Clean product layout with compact gauge embedded in results
 """
 
+import logging
+
 import streamlit as st
 from components.cards import kpi_card, status_badge
 from components.charts import feature_importance_chart
@@ -14,6 +16,9 @@ from utils.api import (
     get_feature_importance,
     get_prediction_history
 )
+from utils.agentic_api import agentic_predict
+
+logger = logging.getLogger(__name__)
 
 
 def _get_risk_drivers(importance_data, top_n=3):
@@ -50,6 +55,55 @@ def _generate_recommendation(result):
         return "Monitor machine closely. Plan inspection within the next 72 hours."
     else:
         return "No action required. Machine is operating within normal parameters."
+
+
+def _render_agentic_section(agentic_result):
+    """Render agentic AI analysis sections if available."""
+    if not agentic_result:
+        return
+    st.markdown("""<hr style="margin: 0.75rem 0; border-color: #F1F5F9;"><div class="section-header"><h2>Agentic AI Analysis</h2></div>""", unsafe_allow_html=True)
+
+    cols = st.columns(3)
+    risk = agentic_result.get("risk_assessment", {})
+    trend = agentic_result.get("trend_analysis", {})
+    impact = agentic_result.get("operational_impact", {})
+
+    if risk:
+        with cols[0]:
+            st.markdown(f"**Risk Level:** {risk.get('risk_level','')} | **Severity:** {risk.get('severity','')}")
+            st.caption(risk.get("rationale", ""))
+
+    if trend:
+        with cols[1]:
+            st.markdown(f"**Trend:** {trend.get('direction','')} | **Health:** {trend.get('health_trend','')}")
+            st.caption(trend.get("summary", ""))
+
+    if impact:
+        with cols[2]:
+            st.markdown(f"**Impact:** {impact.get('impact_category','')} | **Priority:** {impact.get('estimated_priority','')}")
+
+    recs = agentic_result.get("maintenance_recommendations", [])
+    if recs:
+        st.markdown("### Maintenance Recommendations")
+        for r in recs:
+            st.markdown(f"- **{r.get('action','')}** (*{r.get('priority','')}*)")
+            st.caption(r.get("rationale", ""))
+
+    docs = agentic_result.get("retrieved_documents", [])
+    if docs:
+        st.markdown("### Retrieved Knowledge")
+        for d in docs:
+            st.markdown(f"- **{d.get('title','')}** (*{d.get('source','')}*) — confidence {d.get('confidence',0)}")
+
+    trace = agentic_result.get("execution_trace")
+    if trace:
+        st.markdown("### Execution Trace")
+        statuses = agentic_result.get("node_status", {})
+        time_str = trace.get("started_at", "")[:19] if isinstance(trace, dict) else ""
+        st.caption(f"Trace ID: {trace.get('trace_id','')} | Started: {time_str}")
+        for node, s in statuses.items():
+            emoji = {"success": "✅", "failure": "❌", "running": "⏳", "skipped": "⏭️", "retrying": "🔄"}.get(s, "❓")
+            st.markdown(f"&nbsp;&nbsp;{emoji} **{node}** — {s}")
 
 
 def render():
@@ -140,13 +194,19 @@ def render():
                 format="%.1f"
             )
 
-        analyze_clicked = st.button("Analyze Machine", type="primary", use_container_width=True)
+        col_btn1, col_btn2 = st.columns(2)
+        with col_btn1:
+            analyze_clicked = st.button("Analyze Machine", type="primary", use_container_width=True)
+        with col_btn2:
+            agentic_clicked = st.button("Agentic AI Analysis", use_container_width=True)
 
     with col_right:
         if "prediction_result" not in st.session_state:
             st.session_state.prediction_result = None
         if "prediction_error" not in st.session_state:
             st.session_state.prediction_error = None
+        if "agentic_result" not in st.session_state:
+            st.session_state.agentic_result = None
 
         if analyze_clicked:
             with st.spinner("Analyzing machine health..."):
@@ -161,11 +221,30 @@ def render():
                     )
                     st.session_state.prediction_result = result
                     st.session_state.prediction_error = None
+                    st.session_state.agentic_result = None
                 except Exception as e:
                     error_msg = str(e)
-                    print(f"[DEBUG] Prediction failed: {error_msg}")
                     st.session_state.prediction_error = error_msg
                     st.session_state.prediction_result = None
+
+        if agentic_clicked:
+            with st.spinner("Running agentic AI pipeline..."):
+                try:
+                    agentic_result = agentic_predict(
+                        machine_type=machine_type,
+                        air_temp=air_temp,
+                        process_temp=process_temp,
+                        rpm=rpm,
+                        torque=torque,
+                        tool_wear=tool_wear
+                    )
+                    st.session_state.agentic_result = agentic_result
+                    st.session_state.prediction_result = agentic_result.get("prediction")
+                    st.session_state.prediction_error = None
+                except Exception as e:
+                    error_msg = str(e)
+                    st.session_state.prediction_error = error_msg
+                    st.session_state.agentic_result = None
 
         if st.session_state.get("prediction_error"):
             st.error(f"API Error: {st.session_state.prediction_error}")
@@ -246,6 +325,9 @@ def render():
             st.markdown('</div>', unsafe_allow_html=True)
 
             st.markdown('</div>', unsafe_allow_html=True)
+
+            # Show agentic analysis after prediction
+            _render_agentic_section(st.session_state.get("agentic_result"))
         else:
             st.markdown("""
             <div class="pi-result-card">

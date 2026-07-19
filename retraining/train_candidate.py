@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 import joblib
 import json
@@ -13,9 +14,19 @@ from xgboost import (
     XGBClassifier
 )
 
-data = pd.read_csv(
-    "data/production/production_data_labeled.csv"
-)
+from logging_config import configure_logging
+
+configure_logging(service_name="retraining")
+logger = logging.getLogger(__name__)
+
+try:
+    data = pd.read_csv(
+        "data/production/production_data_labeled.csv"
+    )
+    logger.info("Loaded labeled production data: %d rows", len(data))
+except Exception as exc:
+    logger.exception("Failed to load production data: %s", exc)
+    raise
 
 target = "Machine failure"
 
@@ -86,8 +97,9 @@ joblib.dump(
     "models/candidate_model.pkl"
 )
 
-print(
-    f"\nCandidate ROC AUC: {candidate_auc:.4f}"
+logger.info(
+    "Candidate ROC AUC: %.4f",
+    candidate_auc
 )
 
 
