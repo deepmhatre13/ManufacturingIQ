@@ -15,3 +15,20 @@ artifacts/
 *.log
 
 .DS_Store
+
+# Environment and secrets
+.env
+.env.local
+.streamlit/secrets.toml
+.env.example
+# IDE
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+Desktop.ini
+.streamlit/secrets.toml.example
+
+.models

@@ -2,5 +2,11 @@
     "model_name": "ManufacturingIQ_XGB",
     "version": "v1.0.0",
     "roc_auc": 0.9953492266471806,
-    "feature_count": 12
+    "feature_count": 12,
+    "sha256": "08b7cd2a1eda1fbf041e156397c2512e0dc72939392ee21048a073dd6bb1adb2",
+    "training_stats": {
+        "temperature_difference_max": 13.0,
+        "torque_max": 76.6,
+        "wear_max": 253.0
+    }
 }
