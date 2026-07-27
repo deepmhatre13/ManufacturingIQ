@@ -1,9 +1,12 @@
 # Environment
 .env
 .env.*
+.env.local
+.env.example
 
 # Streamlit
 .streamlit/secrets.toml
+.streamlit/secrets.toml.example
 
 # Generated prediction history
 data/prediction_history.csv
@@ -12,22 +15,33 @@ data/agent_prediction_history.csv
 # Embeddings / model cache
 models/embeddings/
 
+# MLflow
+mlruns/
+mlflow.db
+
 # Python
 __pycache__/
 *.pyc
 *.pyo
-
-# MLflow
-mlruns/
-mlflow.db
+.pytest_cache/
 
 # Logs
 *.log
 logs/
 
+# Reports and artifacts
+reports/
+artifacts/
+
+# Virtual environments
+venv/
+.venv/
+
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # OS
 .DS_Store
@@ -37,9 +51,5 @@ Desktop.ini
 # Jupyter
 .ipynb_checkpoints/
 
-# Reports and artifacts
-reports/
-artifacts/
-
-# Test and lint caches
-.pytest_cache/
+# Model artifacts
+.models

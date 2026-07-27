@@ -1,14 +1,21 @@
+import logging
 import subprocess
+import sys
 
+from logging_config import configure_logging
 from monitoring.drift_monitor import (
     calculate_drift
 )
+
+configure_logging(service_name="retraining")
+logger = logging.getLogger(__name__)
 
 drift_report = (
     calculate_drift()
 )
 
-print(
+logger.info(
+    "Drift report: %s",
     drift_report
 )
 
@@ -16,14 +23,12 @@ if drift_report[
     "drift_detected"
 ]:
 
-    print(
-        "\nRetraining Triggered"
-    )
+    logger.info("Retraining Triggered")
 
     subprocess.run(
 
         [
-            "python",
+            sys.executable,
             "data/simulate_labels.py"
         ]
     )
@@ -31,13 +36,11 @@ if drift_report[
     subprocess.run(
 
         [
-            "python",
+            sys.executable,
             "retraining/train_candidate.py"
         ]
     )
 
 else:
 
-    print(
-        "\nNo Retraining Needed"
-    )
+    logger.info("No Retraining Needed")

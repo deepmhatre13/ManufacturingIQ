@@ -1,8 +1,14 @@
 """
 ManufacturingIQ - API Client
 Handles all backend communication with FastAPI
+
+Note on authentication layers:
+- Dashboard login (st.login / st.user) authenticates the human user via Google OAuth.
+- X-API-Key authenticates this dashboard service to the backend API.
+These are two separate, complementary auth layers.
 """
 
+import logging
 import requests
 import json
 import random
@@ -11,11 +17,15 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 import os
 
+logger = logging.getLogger(__name__)
+
+# Load .env for local development
+from dotenv import load_dotenv
+load_dotenv()
 
 API_BASE_URL = os.getenv(
     "API_BASE_URL",
-    "https://manufacturingiq.onrender.com"
-    #"http://127.0.0.1:8000"
+    "http://127.0.0.1:8000"
 )
 
 TIMEOUT = 15
@@ -28,6 +38,17 @@ def get_api_status() -> bool:
         return response.status_code == 200
     except:
         return False
+
+
+def _get_api_key() -> Optional[str]:
+    """Get API key from Streamlit secrets or environment variable."""
+    try:
+        import streamlit as st
+        if "MANUFACTURINGIQ_API_KEY" in st.secrets:
+            return st.secrets["MANUFACTURINGIQ_API_KEY"]
+    except Exception:
+        pass
+    return os.getenv("MANUFACTURINGIQ_API_KEY")
 
 
 def predict_health(
@@ -52,28 +73,31 @@ def predict_health(
         "Tool_wear_min": tool_wear
     }
 
-    # DEBUG: Log the payload being sent
-    print(f"[DEBUG] predict_health payload: {json.dumps(payload)}")
+    logger.debug("predict_health payload: %s", json.dumps(payload))
+
+    headers = {"Content-Type": "application/json"}
+    api_key = _get_api_key()
+    if api_key:
+        headers["X-API-Key"] = api_key
 
     response = requests.post(
         f"{API_BASE_URL}/predict",
         json=payload,
+        headers=headers,
         timeout=TIMEOUT
     )
 
-    # DEBUG: Log response status
-    print(f"[DEBUG] Response status: {response.status_code}")
+    logger.debug("Response status: %s", response.status_code)
 
     if response.status_code != 200:
         error_detail = response.text if response.text else "No response body"
-        print(f"[DEBUG] Response error body: {error_detail}")
+        logger.error("API error response: %s", error_detail)
         raise RuntimeError(
             f"API returned status {response.status_code}: {error_detail}"
         )
 
     result = response.json()
-    # DEBUG: Log the result returned by the API
-    print(f"[DEBUG] API result: {json.dumps(result)}")
+    logger.debug("API result: %s", json.dumps(result))
 
     return result
 

@@ -42,9 +42,73 @@ if "page" not in st.session_state:
     st.session_state.page = "Predictive Intelligence"
 
 
+def check_authorization():
+    """Check if the logged-in user is authorized."""
+    try:
+        allowed_emails = st.secrets.get("ALLOWED_EMAILS", "")
+        allowed_domains = st.secrets.get("ALLOWED_EMAIL_DOMAINS", "")
+
+        if not allowed_emails and not allowed_domains:
+            return True
+
+        email = getattr(st.user, "email", "").lower()
+
+        if allowed_emails:
+            allowed = [e.strip().lower() for e in allowed_emails.split(",") if e.strip()]
+            if email in allowed:
+                return True
+
+        if allowed_domains:
+            domains = [d.strip().lower() for d in allowed_domains.split(",") if d.strip()]
+            domain = email.split("@")[-1] if "@" in email else ""
+            if domain in domains:
+                return True
+
+        return False
+    except Exception:
+        return True
+
+
+def is_user_logged_in() -> bool:
+    """Check if the user is logged in via Google OAuth."""
+    try:
+        # In Streamlit 1.58.0+, user info is populated after login.
+        # If email is accessible, the user is logged in.
+        _ = st.user.email
+        return True
+    except (AttributeError, KeyError):
+        return False
+
+
 def main():
     """Main application entry point"""
     load_css()
+
+    # Google OAuth login gate
+    if not is_user_logged_in():
+        st.markdown("## 🔒 ManufacturingIQ")
+        st.write("Please sign in with Google to continue.")
+        if st.button("Log in with Google"):
+            st.login()
+        st.stop()
+
+    # Authorization check
+    if not check_authorization():
+        st.error("🚫 Access Denied")
+        st.write("Your email is not authorized to access this application.")
+        if st.button("Log out"):
+            st.logout()
+        st.stop()
+
+    # Show user info in sidebar
+    with st.sidebar:
+        try:
+            st.write(f"👤 **{st.user.name}**")
+            st.write(f"📧 {st.user.email}")
+        except (AttributeError, KeyError):
+            pass
+        if st.button("Log out"):
+            st.logout()
 
     # Navigation
     tab1, tab2 = st.tabs(["Predictive Intelligence", "MLOps Center"])
