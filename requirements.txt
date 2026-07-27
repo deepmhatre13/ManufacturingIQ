@@ -8,9 +8,6 @@ scikit-learn==1.7.0
 xgboost==3.0.2
 joblib==1.5.1
 
-# Hyperparameter Optimization
-optuna==4.4.0
-
 # Explainable AI
 shap==0.48.0
 
@@ -21,38 +18,21 @@ python-multipart==0.0.20
 pydantic==2.11.7
 pydantic-settings==2.10.0
 
-# MLOps
-mlflow==3.1.0
-
 # Monitoring
 evidently==0.7.10
-
-# Data Versioning
-dvc==3.60.1
-
-# Visualization
-matplotlib==3.10.3
-seaborn==0.13.2
-plotly==5.24.1
 
 # Utilities
 python-dotenv==1.1.1
 tqdm==4.67.1
-
-# Model Serialization
 cloudpickle==3.1.1
-
-# Requests
 requests==2.32.4
-
-# JSON/YAML
 PyYAML==6.0.2
 
 # Agentic AI / LangGraph
 langgraph==0.3.21
 langchain==0.3.24
-langchain-community==0.3.21
-langchain-core==0.3.55
+langchain-community==0.3.24
+langchain-core==0.3.59
 
 # RAG / Embeddings / Vector Store
 sentence-transformers==4.1.0
