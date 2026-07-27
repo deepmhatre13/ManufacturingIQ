@@ -1,0 +1,20 @@
+# Development and testing dependencies
+# Install with: pip install -r requirements-dev.txt
+
+# Testing
+pytest==8.4.2
+pytest-cov==6.0.0
+pytest-mock==3.14.0
+pytest-asyncio==0.23.8
+respx==0.22.0
+
+# Linting and formatting
+black==24.8.0
+ruff==0.6.9
+
+# Notebooks
+jupyter==1.1.1
+ipykernel==6.29.5
+notebook==7.2.2
+nbconvert==7.16.4
+jupyterlab==4.2.5

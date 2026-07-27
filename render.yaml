@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: manufacturingiq-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: MANUFACTURINGIQ_API_KEYS
+        sync: false
+      - key: MANUFACTURINGIQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: API_BASE_URL
+        value: https://manufacturingiq-api.onrender.com
+      - key: ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
