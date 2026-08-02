@@ -42,32 +42,39 @@ def startup_event():
         log_level=os.getenv("LOG_LEVEL", "INFO"),
     )
 
-    # Phase 1: Preload SentenceTransformer once (no HTTP requests after this)
-    try:
-        logger.info("Preloading SentenceTransformer...")
-        from retriever.retriever import _get_embedder
-        _get_embedder()
-        logger.info("SentenceTransformer preloaded successfully")
-    except Exception as exc:
-        logger.warning("SentenceTransformer preload failed (will lazy-load on first request): %s", exc)
+    # Memory-optimized startup: only preload models if PRELOAD_MODELS=true
+    # On Render's 512 MB free tier, keep PRELOAD_MODELS=false (default for production)
+    preload_models = os.getenv("PRELOAD_MODELS", "false").lower() == "true"
 
-    # Phase 2: Preload FAISS index from disk (rebuild only if cache missing)
-    try:
-        logger.info("Preloading FAISS index...")
-        from retriever.retriever import retriever
-        retriever.preload()
-        logger.info("FAISS index preloaded successfully")
-    except Exception as exc:
-        logger.warning("FAISS index preload failed (will lazy-load on first request): %s", exc)
+    if preload_models:
+        # Phase 1: Preload SentenceTransformer once (no HTTP requests after this)
+        try:
+            logger.info("Preloading SentenceTransformer...")
+            from retriever.retriever import _get_embedder
+            _get_embedder()
+            logger.info("SentenceTransformer preloaded successfully")
+        except Exception as exc:
+            logger.warning("SentenceTransformer preload failed (will lazy-load on first request): %s", exc)
 
-    # Phase 3: Pre-build LangGraph graph (compile once, reuse forever)
-    try:
-        logger.info("Building LangGraph graph...")
-        from graph.graph import _build_graph
-        _build_graph()
-        logger.info("LangGraph graph built successfully")
-    except Exception as exc:
-        logger.warning("LangGraph graph build failed (will build on first request): %s", exc)
+        # Phase 2: Preload FAISS index from disk (rebuild only if cache missing)
+        try:
+            logger.info("Preloading FAISS index...")
+            from retriever.retriever import retriever
+            retriever.preload()
+            logger.info("FAISS index preloaded successfully")
+        except Exception as exc:
+            logger.warning("FAISS index preload failed (will lazy-load on first request): %s", exc)
+
+        # Phase 3: Pre-build LangGraph graph (compile once, reuse forever)
+        try:
+            logger.info("Building LangGraph graph...")
+            from graph.graph import _build_graph
+            _build_graph()
+            logger.info("LangGraph graph built successfully")
+        except Exception as exc:
+            logger.warning("LangGraph graph build failed (will build on first request): %s", exc)
+    else:
+        logger.info("PRELOAD_MODELS=false — skipping eager model loading for low-memory deployment")
 
 
 @app.exception_handler(Exception)

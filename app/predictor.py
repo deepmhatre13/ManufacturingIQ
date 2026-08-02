@@ -43,50 +43,72 @@ MODELS_DIR = Path(__file__).resolve().parents[1] / "models"
 _MODEL_PATH = MODELS_DIR / "production_model.pkl"
 _METADATA_PATH = MODELS_DIR / "model_metadata.json"
 
-# --- Load metadata (training_stats + expected checksum) -------------------
+# --- Lazy singleton state ----------------------------------------------------
+_model = None
+_feature_columns = None
 _training_stats: dict = {}
 _metadata: dict = {}
-try:
-    with open(_METADATA_PATH, "r") as _f:
-        _metadata = json.load(_f)
-    _training_stats = _metadata.get("training_stats", {})
-    if not _training_stats:
-        logger.warning(
-            "No training_stats in model_metadata.json; "
-            "machine_stress_index will be constant at single-row inference."
-        )
-except Exception as exc:
-    logger.warning("Could not load model_metadata.json: %s", exc)
 
-# --- H-6: Integrity verification before loading the pickle ----------------
-import secrets as _secrets_mod  # need compare_digest for constant-time comparison
 
-def _verify_model_checksum(model_path: Path, metadata: dict) -> None:
-    """Raise RuntimeError if the model file's SHA-256 doesn't match metadata."""
-    expected = metadata.get("sha256")
-    if not expected:
-        logger.warning(
-            "No 'sha256' key in model_metadata.json — skipping integrity check. "
-            "Add it by running: python -c \"import hashlib; "
-            "print(hashlib.sha256(open('models/production_model.pkl','rb').read()).hexdigest())\""
-        )
+def _load_model_artifacts():
+    """Lazy-load model, feature columns, and metadata on first prediction."""
+    global _model, _feature_columns, _training_stats, _metadata
+    if _model is not None:
         return
-    actual = hashlib.sha256(model_path.read_bytes()).hexdigest()
-    if not _secrets_mod.compare_digest(actual, expected):
-        raise RuntimeError(
-            f"Model integrity check FAILED for {model_path.name}. "
-            f"Expected SHA-256 {expected!r}, got {actual!r}. "
-            "The file may be corrupted or tampered with — refusing to load."
-        )
-    logger.info("Model integrity check passed for %s", model_path.name)
 
-try:
-    _verify_model_checksum(_MODEL_PATH, _metadata)
-    model = joblib.load(_MODEL_PATH)
-    feature_columns = joblib.load(MODELS_DIR / "feature_columns.pkl")
-except Exception as exc:
-    logger.error("Failed to load model artifacts from %s: %s", MODELS_DIR, exc)
-    raise
+    # Load metadata first (lightweight)
+    try:
+        with open(_METADATA_PATH, "r") as _f:
+            _metadata = json.load(_f)
+        _training_stats = _metadata.get("training_stats", {})
+        if not _training_stats:
+            logger.warning(
+                "No training_stats in model_metadata.json; "
+                "machine_stress_index will be constant at single-row inference."
+            )
+    except Exception as exc:
+        logger.warning("Could not load model_metadata.json: %s", exc)
+
+    # H-6: Integrity verification before loading the pickle
+    import secrets as _secrets_mod
+
+    def _verify_model_checksum(model_path: Path, metadata: dict) -> None:
+        expected = metadata.get("sha256")
+        if not expected:
+            logger.warning(
+                "No 'sha256' key in model_metadata.json — skipping integrity check."
+            )
+            return
+        actual = hashlib.sha256(model_path.read_bytes()).hexdigest()
+        if not _secrets_mod.compare_digest(actual, expected):
+            raise RuntimeError(
+                f"Model integrity check FAILED for {model_path.name}. "
+                f"Expected SHA-256 {expected!r}, got {actual!r}. "
+                "The file may be corrupted or tampered with — refusing to load."
+            )
+        logger.info("Model integrity check passed for %s", model_path.name)
+
+    try:
+        _verify_model_checksum(_MODEL_PATH, _metadata)
+        _model = joblib.load(_MODEL_PATH)
+        _feature_columns = joblib.load(MODELS_DIR / "feature_columns.pkl")
+        logger.info("Model artifacts loaded lazily from %s", MODELS_DIR)
+    except Exception as exc:
+        logger.error("Failed to load model artifacts from %s: %s", MODELS_DIR, exc)
+        raise
+
+
+# Public accessors used by predict_machine_failure
+@property
+def model():
+    _load_model_artifacts()
+    return _model
+
+
+@property
+def feature_columns():
+    _load_model_artifacts()
+    return _feature_columns
 
 
 def create_features(data):
@@ -192,11 +214,12 @@ def predict_machine_failure(payload):
     )
 
     model_input = feature_df[
-        feature_columns
+        feature_columns  # noqa: F821 - accessed via lazy property
     ]
 
+    _load_model_artifacts()  # ensure model is loaded
     probability = (
-        model
+        _model
         .predict_proba(
             model_input
         )[0][1]
