@@ -38,7 +38,6 @@ mlflow.db
 # Logs and generated reports
 *.log
 logs/
-reports/
 artifacts/
 
 # Test files
