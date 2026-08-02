@@ -1,27 +1,42 @@
+# ── ManufacturingIQ Development Dependencies ─────────────────────────────────
+# These are NOT needed in production.  Install with:
+#   pip install -r requirements-dev.txt
+#
+# For production deployment (Docker / Render) use only requirements.txt.
+
+# Include runtime deps first
 -r requirements.txt
 
-# Training / experimentation (not needed in production)
+# ── Training / Experimentation ──────────────────────────────────────────────
 optuna==4.4.0
 mlflow==3.1.0
 dvc==3.60.1
 
-# Visualization (mostly for training/analysis)
+# ── Monitoring / Drift Detection (training-time only) ───────────────────────
+evidently==0.7.10
+scipy==1.16.0
+
+# ── Visualization (training analysis) ───────────────────────────────────────
 matplotlib==3.10.3
 seaborn==0.13.2
-plotly==5.24.1
 
-# Testing
+# ── Testing ─────────────────────────────────────────────────────────────────
 pytest==8.4.2
 pytest-cov==6.0.0
 pytest-mock==3.14.0
 pytest-asyncio==0.23.8
 respx==0.22.0
+tomlkit==0.15.0
 
+# ── Code Quality ────────────────────────────────────────────────────────────
 black==24.8.0
 ruff==0.6.9
 
+# ── Notebooks ───────────────────────────────────────────────────────────────
 jupyter==1.1.1
 ipykernel==6.29.5
 notebook==7.2.2
 nbconvert==7.16.4
 jupyterlab==4.2.5
+# Starlette pin for Streamlit 1.41.1 compatibility
+starlette<0.41.0

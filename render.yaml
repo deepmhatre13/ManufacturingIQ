@@ -1,4 +1,5 @@
 services:
+  # ── FastAPI Backend ─────────────────────────────────────────────────────────
   - type: web
     name: manufacturingiq-api
     env: docker
@@ -6,9 +7,9 @@ services:
     plan: starter
     healthCheckPath: /health
     envVars:
+      - key: PORT
+        value: "8000"
       - key: MANUFACTURINGIQ_API_KEYS
-        sync: false
-      - key: MANUFACTURINGIQ_API_KEY
         sync: false
       - key: GEMINI_API_KEY
         sync: false
@@ -18,3 +19,50 @@ services:
         value: production
       - key: LOG_LEVEL
         value: INFO
+      - key: EMBEDDING_CACHE_DIR
+        value: /app/models/embeddings
+      - key: EMBEDDING_MODEL
+        value: all-MiniLM-L6-v2
+      - key: RETRIEVER_HYBRID_ALPHA
+        value: "0.75"
+      - key: RETRIEVER_MIN_SCORE
+        value: "0.15"
+      - key: HF_HUB_OFFLINE
+        value: "0"
+      - key: PYTHONDONTWRITEBYTECODE
+        value: "1"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+
+  # ── Streamlit Dashboard ─────────────────────────────────────────────────────
+  - type: web
+    name: manufacturingiq-dashboard
+    env: docker
+    dockerfilePath: ./Dockerfile.dashboard
+    plan: starter
+    healthCheckPath: /_stcore/health
+    envVars:
+      - key: PORT
+        value: "8501"
+      - key: MANUFACTURINGIQ_API_KEY
+        sync: false
+      - key: API_BASE_URL
+        value: https://manufacturingiq-api.onrender.com
+      - key: ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: EMBEDDING_CACHE_DIR
+        value: /app/models/embeddings
+      - key: EMBEDDING_MODEL
+        value: all-MiniLM-L6-v2
+      - key: RETRIEVER_HYBRID_ALPHA
+        value: "0.75"
+      - key: RETRIEVER_MIN_SCORE
+        value: "0.15"
+      - key: HF_HUB_OFFLINE
+        value: "0"
+      - key: PYTHONDONTWRITEBYTECODE
+        value: "1"
+      - key: PYTHONUNBUFFERED
+        value: "1"

@@ -1,0 +1,56 @@
+# Virtual environments
+venv/
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ruff_cache/
+
+# Git / CI
+.git/
+.gitignore
+.dvc/
+.dvcignore
+
+# Dev tools
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter notebooks (large, not needed at runtime)
+*.ipynb
+.ipynb_checkpoints/
+
+# Local secrets (never bake into image)
+.env
+.env.*
+!.env.example
+
+# MLflow tracking (local only)
+mlruns/
+mlflow.db
+
+# Logs and generated reports
+*.log
+logs/
+reports/
+artifacts/
+
+# Test files
+tests/
+dry_run.txt
+README.md
+
+# OS artefacts
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Embedding cache — downloaded at build time inside Docker
+# (include models/ dir for model pkl/pkl files but exclude large embeddings)
+models/embeddings/

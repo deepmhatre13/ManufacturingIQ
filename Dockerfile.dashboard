@@ -1,0 +1,62 @@
+# ── ManufacturingIQ Dashboard Dockerfile ──────────────────────────────────────
+# Multi-stage build: builder → runtime
+
+# ── Stage 1: Builder ──────────────────────────────────────────────────────────
+FROM python:3.12-slim AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        gcc \
+        g++ \
+        build-essential \
+        libffi-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY requirements.txt .
+# Install CPU-only torch first to avoid pulling the full CUDA toolkit (~2GB)
+RUN pip install --no-cache-dir --upgrade pip \
+ && pip install --no-cache-dir --prefix=/install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu \
+ && pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+# ── Stage 2: Runtime ──────────────────────────────────────────────────────────
+FROM python:3.12-slim AS runtime
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libgomp1 \
+        curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY --from=builder /install /usr/local
+
+# Pre-bake the embedding model
+ENV SENTENCE_TRANSFORMERS_HOME=/app/models/embeddings
+RUN python -c "\
+from sentence_transformers import SentenceTransformer; \
+SentenceTransformer('all-MiniLM-L6-v2', cache_folder='/app/models/embeddings'); \
+print('SentenceTransformer model cached successfully')"
+
+COPY . .
+
+RUN useradd --no-create-home --shell /bin/bash appuser \
+ && chown -R appuser:appuser /app
+USER appuser
+
+ENV EMBEDDING_CACHE_DIR=/app/models/embeddings
+ENV HF_HUB_OFFLINE=0
+ENV TRANSFORMERS_OFFLINE=0
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+EXPOSE 8501
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-8501}/_stcore/health || exit 1
+
+# Render injects $PORT; default 8501 for local docker run
+CMD ["sh", "-c", "streamlit run dashboard/app.py --server.port ${PORT:-8501} --server.address 0.0.0.0 --server.headless true"]

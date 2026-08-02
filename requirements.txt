@@ -1,48 +1,48 @@
-# Core Data Science
-numpy==2.2.6
-pandas==2.3.0
-scipy==1.16.0
+# ── ManufacturingIQ Production Dependencies ──────────────────────────────────
+# Pinned to known-compatible versions.  Only runtime packages.
+# See requirements-dev.txt for development / training / testing tools.
 
-# Machine Learning
-scikit-learn==1.7.0
-xgboost==3.0.2
-joblib==1.5.1
+# ── Core Data Science ─────────────────────────────────────────────────────────
+numpy==1.26.4
+pandas==2.2.3
+scipy==1.14.1
 
-# Explainable AI
-shap==0.48.0
+# ── Machine Learning ──────────────────────────────────────────────────────────
+scikit-learn==1.6.1
+xgboost==2.1.3
+joblib==1.4.2
 
-# API
-fastapi==0.115.14
-uvicorn[standard]==0.35.0
-python-multipart==0.0.20
-pydantic==2.11.7
-pydantic-settings==2.10.0
+# ── Explainable AI ────────────────────────────────────────────────────────────
+shap==0.46.0
 
-# Monitoring
-evidently==0.7.10
+# ── API ───────────────────────────────────────────────────────────────────────
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.18
+pydantic==2.10.4
+pydantic-settings==2.7.1
 
-# Utilities
-python-dotenv==1.1.1
-tqdm==4.67.1
-cloudpickle==3.1.1
-requests==2.32.4
-PyYAML==6.0.2
+# ── Dashboard ─────────────────────────────────────────────────────────────────
+streamlit==1.41.1
+plotly==5.24.1
 
-# Agentic AI / LangGraph
-langgraph==0.3.21
-langchain==0.3.24
-langchain-community==0.3.24
-langchain-core==0.3.59
+# ── Starlette pin for Streamlit 1.41.1 compatibility ─────────────────────────
+starlette<0.41.0
 
-# RAG / Embeddings / Vector Store
-sentence-transformers==4.1.0
-faiss-cpu==1.11.0
-qdrant-client==1.13.0
+# ── Agentic AI / LangGraph ────────────────────────────────────────────────────
+# Only langgraph is used (no langchain, langchain-community, langsmith, etc.)
+langgraph==1.2.6
 
-# LLM / embeddings provider
-google-generativeai==0.8.5
+# ── RAG / Embeddings / Vector Store ───────────────────────────────────────────
+sentence-transformers==3.4.1
+faiss-cpu>=1.9.0
 
-# PDF report generation
+# ── LLM / embeddings provider ─────────────────────────────────────────────────
+google-generativeai>=0.8.0
+
+# ── PDF report generation ─────────────────────────────────────────────────────
 fpdf2==2.8.7
-markdown==3.7
-weasyprint==65.0
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+python-dotenv==1.0.1
+requests==2.32.3

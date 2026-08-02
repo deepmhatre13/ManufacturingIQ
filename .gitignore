@@ -2,7 +2,7 @@
 .env
 .env.*
 .env.local
-.env.example
+# .env.example intentionally NOT ignored — it is a safe template with no secrets
 
 # Streamlit
 .streamlit/secrets.toml
@@ -29,9 +29,10 @@ __pycache__/
 *.log
 logs/
 
-# Reports and artifacts
-reports/
+# Generated artifacts (not the reports/ Python module)
 artifacts/
+reports/*.html
+reports/*.pdf
 
 # Virtual environments
 venv/

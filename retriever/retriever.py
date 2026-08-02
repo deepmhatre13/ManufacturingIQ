@@ -39,25 +39,45 @@ _preloaded = False
 
 
 def _get_embedder():
-    """Singleton SentenceTransformer loader with offline cache support."""
+    """Singleton SentenceTransformer loader with local-first, online-fallback strategy.
+
+    Load order:
+    1. Named offline cache dir (``<CACHE_DIR>/<model>_offline``) — created by build-time scripts.
+    2. HuggingFace Hub cache dir (populated by sentence-transformers automatic caching).
+    3. Online download (last resort; requires network access).
+    """
     global _embedder
     if _embedder is not None:
         return _embedder
 
-    # Enforce local-only mode to eliminate Hugging Face HTTP requests
-    import os as _os
-    _os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
-    _os.environ.setdefault("HF_HUB_OFFLINE", "1")
-
     from sentence_transformers import SentenceTransformer
-    # Try offline loading first (NO HTTP REQUESTS)
-    cache_path = CACHE_DIR / f"{_EMBEDDING_MODEL.replace('/', '_')}_offline"
-    if cache_path.exists():
-        logger.info("Loading SentenceTransformer from offline cache: %s", cache_path)
-        _embedder = SentenceTransformer(str(cache_path), cache_folder=str(CACHE_DIR), local_files_only=True)
-    else:
-        logger.info("Loading SentenceTransformer from cache: %s", _EMBEDDING_MODEL)
-        _embedder = SentenceTransformer(_EMBEDDING_MODEL, cache_folder=str(CACHE_DIR), local_files_only=True)
+
+    # 1. Named offline cache path (Dockerfile pre-bakes the model here)
+    offline_cache = CACHE_DIR / f"{_EMBEDDING_MODEL.replace('/', '_')}_offline"
+    if offline_cache.exists():
+        logger.info("Loading SentenceTransformer from offline cache: %s", offline_cache)
+        _embedder = SentenceTransformer(
+            str(offline_cache),
+            cache_folder=str(CACHE_DIR),
+            local_files_only=True,
+        )
+        return _embedder
+
+    # 2. Try HuggingFace Hub cache (local_files_only=True, no network)
+    try:
+        logger.info("Loading SentenceTransformer from HF hub cache (local): %s", _EMBEDDING_MODEL)
+        _embedder = SentenceTransformer(
+            _EMBEDDING_MODEL,
+            cache_folder=str(CACHE_DIR),
+            local_files_only=True,
+        )
+        return _embedder
+    except Exception as exc:
+        logger.warning("Local-only load failed (%s); falling back to online download.", exc)
+
+    # 3. Online download (only if network is available and local cache missed)
+    logger.info("Downloading SentenceTransformer model from HuggingFace Hub: %s", _EMBEDDING_MODEL)
+    _embedder = SentenceTransformer(_EMBEDDING_MODEL, cache_folder=str(CACHE_DIR))
     return _embedder
 
 
